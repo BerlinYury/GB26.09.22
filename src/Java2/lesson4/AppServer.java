@@ -1,7 +1,7 @@
 package Java2.lesson4;
 
-public class GraphicsApp {
+public class AppServer {
     public static void main(String[] args) {
-        Window window =new Window();
+        WindowServer window2 =new WindowServer();
     }
 }

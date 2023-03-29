@@ -1,18 +1,19 @@
 package Java2.lesson4;
 
-import javafx.scene.layout.Background;
-
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Scanner;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class Window extends JFrame {
-    public Window() {
-        setTitle("YurchikChat");
+public class WindowClient extends JFrame {
+    ChatClient echoClient;
+    TextArea textArea;
+
+    public WindowClient() {
+        echoClient=new ChatClient(this);
+
+        setTitle("Client");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(450, 250, 550, 430);
         EmptyBorder border = new EmptyBorder(2, 4, 4, 4);
@@ -26,7 +27,7 @@ public class Window extends JFrame {
         JPanel panel1 = new JPanel(new BorderLayout());
         panelX.add(panel1, BorderLayout.SOUTH);
 
-        TextArea textArea = new TextArea();
+        textArea = new TextArea();
         panel.add(textArea);
         textArea.setEditable(false);
         textArea.setBackground(Color.LIGHT_GRAY);
@@ -44,8 +45,18 @@ public class Window extends JFrame {
         setVisible(true);
         textField.requestFocusInWindow();
 
-        textField.addActionListener(actionEvent -> action(textArea, textField));
-        button.addActionListener(actionEvent -> action(textArea, textField));
+        textField.addActionListener(actionEvent -> eventSend(textArea, textField));
+        button.addActionListener(actionEvent -> eventSend(textArea, textField));
+
+        addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+              echoClient.sendMessage(ChatServer.getEND());
+                e.getWindow().dispose();
+            }
+        });
 //        ● JButton – кнопка;
 //        ● JLabel – надпись;
 //        ● JTextField – однострочное текстовое поле;
@@ -56,14 +67,27 @@ public class Window extends JFrame {
 //        ● JRadioButton – RadioButton;
 //        ● JCheckBox – CheckBox.
     }
-    private static void action(TextArea textArea, TextField textField) {
-        if (textArea.getText().isEmpty()) {
-            textArea.setText(textField.getText());
-            textField.setText(null);
-        } else if (!textField.getText().isEmpty()) {
-            textArea.setText(textArea.getText() + "\n" + textField.getText());
-            textField.setText(null);
+        private void eventSend(TextArea textArea, TextField textField) {
+            String msg = textField.getText();
+            if (!msg.isEmpty()) {
+                echoClient.sendMessage(msg.trim());
+                if (textArea.getText().isEmpty()) {
+                    textArea.setText(msg);
+                    textField.setText(null);
+                } else {
+                    textArea.setText(textArea.getText() + "\n" + msg);
+                    textField.setText(null);
+                }
+            }
         }
-    }
 
+        public void addMessage(String msg) {
+            if (!msg.isEmpty()) {
+                if (textArea.getText().isEmpty()) {
+                    textArea.setText(msg);
+                } else {
+                    textArea.setText(textArea.getText() + "\n" + msg);
+                }
+            }
+        }
 }
